@@ -1,7 +1,8 @@
-// ...imports
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../theme_provider.dart';
+import '../theme_toggle_button.dart';
+import 'daily_schedule_screen.dart';
 
 class UniversityDashboardScreen extends StatelessWidget {
   final String universityName;
@@ -27,69 +28,65 @@ class UniversityDashboardScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: backgroundColor,
       body: SafeArea(
-        child: Stack(
+        child: Column(
           children: [
-            Column(
-              children: [
-                SizedBox(height: 16),
-                Center(
-                  child: Text(
-                    'دانشگاه $universityName',
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      color: textColor,
-                      fontFamily: 'Vazir',
-                    ),
-                  ),
+            // Theme toggle button
+            ThemeToggleButton(),
+            SizedBox(height: 16),
+            Center(
+              child: Text(
+                'دانشگاه $universityName',
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: textColor,
+                  fontFamily: 'Vazir',
                 ),
-                SizedBox(height: 20),
-                Expanded(
-                  child: ListView.builder(
-                    padding: EdgeInsets.symmetric(vertical: 8),
-                    itemCount: menuOptions.length,
-                    itemBuilder: (context, index) {
-                      return Center(
-                        child: Container(
-                          width: 170,
-                          margin: EdgeInsets.only(bottom: 16),
-                          child: ElevatedButton(
-                            onPressed: () {
-                              print('Tapped: ${menuOptions[index]}');
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.lightBlue,
-                              padding: EdgeInsets.symmetric(vertical: 16),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20),
+              ),
+            ),
+            SizedBox(height: 20),
+            Expanded(
+              child: ListView.builder(
+                padding: EdgeInsets.symmetric(vertical: 8),
+                itemCount: menuOptions.length,
+                itemBuilder: (context, index) {
+                  return Center(
+                    child: Container(
+                      width: 170,
+                      margin: EdgeInsets.only(bottom: 16),
+                      child: ElevatedButton(
+                        onPressed: () {
+                          if (menuOptions[index] == 'برنامه روزانه') {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => DailyScheduleScreen(universityName: universityName),
                               ),
-                            ),
-                            child: Text(
-                              menuOptions[index],
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                fontFamily: 'Vazir',
-                                color: Colors.white,
-                              ),
-                            ),
+                            );
+                          } else {
+                            print('Tapped: ${menuOptions[index]}');
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.lightBlue,
+                          padding: EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
                           ),
                         ),
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
-            Positioned(
-              top: 10,
-              right: 10,
-              child: IconButton(
-                icon: Icon(
-                  isDarkMode ? Icons.light_mode : Icons.dark_mode,
-                  color: textColor,
-                ),
-                onPressed: () => themeProvider.toggleTheme(),
+                        child: Text(
+                          menuOptions[index],
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Vazir',
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                },
               ),
             ),
           ],

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../theme_provider.dart';
 import 'university_dashboard_screen.dart';
+import '../theme_toggle_button.dart';
 
 class UniversitySelectionScreen extends StatelessWidget {
   final List<String> universities = [
@@ -18,6 +19,8 @@ class UniversitySelectionScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
+    final textColor = themeProvider.isDarkMode ? Colors.white : Color(0xff4a4a4a);
+
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
@@ -25,67 +28,61 @@ class UniversitySelectionScreen extends StatelessWidget {
         body: SafeArea(
           child: Column(
             children: [
-              Align(
-                alignment: Alignment.topRight,
-                child: IconButton(
-                  icon: Icon(
-                    themeProvider.isDarkMode ? Icons.light_mode : Icons.dark_mode,
-                    color: themeProvider.isDarkMode ? Colors.white : Colors.black,
-                  ),
-                  onPressed: () {
-                    themeProvider.toggleTheme();
-                  },
+              // Theme toggle button
+              ThemeToggleButton(),
+              // Fixed header section
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                child: Column(
+                  children: [
+                    Image.asset(
+                      'assets/images/logo.png',
+                      width: 150,
+                      height: 150,
+                    ),
+                    SizedBox(height: 16),
+                    Text(
+                      'سامانه درس بین',
+                      style: TextStyle(
+                        color: Colors.lightBlue,
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Vazir',
+                      ),
+                    ),
+                    SizedBox(height: 30),
+                    Text(
+                      'انتخاب دانشگاه:',
+                      style: TextStyle(
+                        color: textColor,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Vazir',
+                      ),
+                    ),
+                    SizedBox(height: 20),
+                  ],
                 ),
               ),
+              // Scrollable university list
               Expanded(
-                child: SingleChildScrollView(
-                  child: Center(
-                    child: Column(
-                      children: [
-                        SizedBox(height: 10),
-                        Image.asset(
-                          'assets/images/logo.png',
-                          width: 150,
-                          height: 150,
-                        ),
-                        SizedBox(height: 16),
-                        Text(
-                          'سامانه درس بین',
-                          style: TextStyle(
-                            color: Colors.lightBlue,
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: 'Vazir',
-                          ),
-                        ),
-                        SizedBox(height: 30),
-                        Text(
-                          'انتخاب دانشگاه:',
-                          style: TextStyle(
-                            color: themeProvider.isDarkMode ? Colors.white : Color(0xff4a4a4a),
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: 'Vazir',
-                          ),
-                        ),
-                        SizedBox(height: 20),
-                        ...universities.map(
-                              (name) => UniversityButton(
-                            universityName: name,
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => UniversityDashboardScreen(universityName: name),
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                        SizedBox(height: 40),
-                      ],
-                    ),
-                  ),
+                child: ListView.builder(
+                  itemCount: universities.length,
+                  itemBuilder: (context, index) {
+                    return Center(
+                      child: UniversityButton(
+                        universityName: universities[index],
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => UniversityDashboardScreen(universityName: universities[index]),
+                            ),
+                          );
+                        },
+                      ),
+                    );
+                  },
                 ),
               ),
             ],
