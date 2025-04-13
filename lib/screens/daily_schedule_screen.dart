@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shamsi_date/shamsi_date.dart';
+import 'package:shamsi_date/shamsi_date.dart' as shamsi;
 import '../theme_provider.dart';
 import '../theme_toggle_button.dart';
 
@@ -14,13 +14,13 @@ class DailyScheduleScreen extends StatefulWidget {
 }
 
 class _DailyScheduleScreenState extends State<DailyScheduleScreen> {
-  late Jalali _selectedDate;
+  late shamsi.Jalali _selectedDate;
 
   @override
   void initState() {
     super.initState();
     // Initialize with today's date in Jalali calendar
-    _selectedDate = Jalali.now();
+    _selectedDate = shamsi.Jalali.now();
   }
 
   // Sample data (List<Map<String, String>> format)
@@ -221,42 +221,21 @@ class _DailyScheduleScreenState extends State<DailyScheduleScreen> {
     });
   }
 
-  // Show Jalali date picker
+  // Show custom Jalali date picker
   Future<void> _selectDate(BuildContext context) async {
-    // Convert Jalali to DateTime for the date picker
-    final DateTime initialDate = _selectedDate.toDateTime();
-    final DateTime firstDate = Jalali(1300, 1, 1).toDateTime();
-    final DateTime lastDate = Jalali(1500, 12, 29).toDateTime();
-
-    final DateTime? picked = await showDatePicker(
+    final shamsi.Jalali? picked = await showDialog<shamsi.Jalali>(
       context: context,
-      initialDate: initialDate,
-      firstDate: firstDate,
-      lastDate: lastDate,
-      builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: ColorScheme.light(
-              primary: Colors.lightBlue,
-              onPrimary: Colors.white,
-              onSurface: Colors.black,
-            ),
-            textButtonTheme: TextButtonThemeData(
-              style: TextButton.styleFrom(
-                foregroundColor: Colors.lightBlue,
-              ),
-            ),
-          ),
-          child: child!,
-        );
-      },
+      builder: (context) => JalaliDatePickerDialog(
+        initialDate: _selectedDate,
+        onSelected: (date) {
+          Navigator.pop(context, date);
+        },
+      ),
     );
 
     if (picked != null) {
-      // Convert selected DateTime back to Jalali
-      final Jalali selectedJalali = Jalali.fromDateTime(picked);
       setState(() {
-        _selectedDate = selectedJalali;
+        _selectedDate = picked;
       });
     }
   }
@@ -310,7 +289,7 @@ class _DailyScheduleScreenState extends State<DailyScheduleScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     IconButton(
-                      icon: Icon(Icons.arrow_right, color: textColor),
+                      icon: Icon(Icons.arrow_left, color: textColor),
                       onPressed: _incrementDate,
                     ),
                     GestureDetector(
@@ -332,7 +311,7 @@ class _DailyScheduleScreenState extends State<DailyScheduleScreen> {
                       ),
                     ),
                     IconButton(
-                      icon: Icon(Icons.arrow_left, color: textColor),
+                      icon: Icon(Icons.arrow_right, color: textColor),
                       onPressed: _decrementDate,
                     ),
                   ],
@@ -460,6 +439,206 @@ class _DailyScheduleScreenState extends State<DailyScheduleScreen> {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+// Custom Jalali Date Picker Dialog
+class JalaliDatePickerDialog extends StatefulWidget {
+  final shamsi.Jalali initialDate;
+  final Function(shamsi.Jalali) onSelected;
+
+  const JalaliDatePickerDialog({
+    required this.initialDate,
+    required this.onSelected,
+  });
+
+  @override
+  _JalaliDatePickerDialogState createState() => _JalaliDatePickerDialogState();
+}
+
+class _JalaliDatePickerDialogState extends State<JalaliDatePickerDialog> {
+  late int _year;
+  late int _month;
+  late int _day;
+  final List<String> _months = [
+    'فروردین',
+    'اردیبهشت',
+    'خرداد',
+    'تیر',
+    'مرداد',
+    'شهریور',
+    'مهر',
+    'آبان',
+    'آذر',
+    'دی',
+    'بهمن',
+    'اسفند',
+  ];
+  final List<String> _daysOfWeek = [
+    'ش',
+    'ی',
+    'د',
+    'س',
+    'چ',
+    'پ',
+    'ج',
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _year = widget.initialDate.year;
+    _month = widget.initialDate.month;
+    _day = widget.initialDate.day;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final isDarkMode = themeProvider.isDarkMode;
+    final textColor = isDarkMode ? Colors.white : Colors.black;
+
+    // Calculate the first day of the month and number of days
+    final shamsi.Jalali firstDayOfMonth = shamsi.Jalali(_year, _month, 1);
+    final int firstWeekday = (firstDayOfMonth.weekDay + 1) % 7; // Adjust for Persian week (starts Saturday)
+    final int daysInMonth = firstDayOfMonth.monthLength;
+
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: AlertDialog(
+        backgroundColor: isDarkMode ? const Color(0xFF383C4A) : Colors.white,
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            IconButton(
+              icon: Icon(Icons.arrow_left, color: textColor),
+              onPressed: () {
+                setState(() {
+                  if (_month == 12) {
+                    _month = 1;
+                    _year++;
+                  } else {
+                    _month++;
+                  }
+                  _day = 1; // Reset day to avoid invalid dates
+                });
+              },
+            ),
+            Text(
+              '${_months[_month - 1]} $_year',
+              style: TextStyle(
+                color: textColor,
+                fontFamily: 'Vazir',
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            IconButton(
+              icon: Icon(Icons.arrow_right, color: textColor),
+              onPressed: () {
+                setState(() {
+                  if (_month == 1) {
+                    _month = 12;
+                    _year--;
+                  } else {
+                    _month--;
+                  }
+                  _day = 1; // Reset day to avoid invalid dates
+                });
+              },
+            ),
+          ],
+        ),
+        content: SizedBox(
+          width: 300,
+          height: 300,
+          child: Column(
+            children: [
+              // Days of the week
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: _daysOfWeek.map((day) {
+                  return Text(
+                    day,
+                    style: TextStyle(
+                      color: textColor,
+                      fontFamily: 'Vazir',
+                      fontWeight: FontWeight.bold,
+                    ),
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 10),
+              // Calendar grid
+              Expanded(
+                child: GridView.builder(
+                  physics: const NeverScrollableScrollPhysics(),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 7,
+                    childAspectRatio: 1,
+                  ),
+                  itemCount: firstWeekday + daysInMonth,
+                  itemBuilder: (context, index) {
+                    if (index < firstWeekday) {
+                      return const SizedBox.shrink();
+                    }
+                    final day = index - firstWeekday + 1;
+                    final isSelected = day == _day;
+                    return GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _day = day;
+                        });
+                      },
+                      child: Container(
+                        margin: const EdgeInsets.all(2),
+                        decoration: BoxDecoration(
+                          color: isSelected ? Colors.lightBlue : Colors.transparent,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Center(
+                          child: Text(
+                            day.toString(),
+                            style: TextStyle(
+                              color: isSelected ? Colors.white : textColor,
+                              fontFamily: 'Vazir',
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              'لغو',
+              style: TextStyle(
+                color: Colors.lightBlue,
+                fontFamily: 'Vazir',
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              final selected = shamsi.Jalali(_year, _month, _day);
+              widget.onSelected(selected);
+            },
+            child: Text(
+              'تأیید',
+              style: TextStyle(
+                color: Colors.lightBlue,
+                fontFamily: 'Vazir',
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
