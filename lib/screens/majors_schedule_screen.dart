@@ -3,7 +3,9 @@ import 'package:provider/provider.dart';
 import '../theme_provider.dart';
 import '../theme_toggle_button.dart';
 import '../widgets/SearchBarWidget.dart';
-import 'major_classes_screen.dart'; // Import the major classes screen
+import 'major_classes_screen.dart';
+import '../schedule_service.dart';
+import '../class_schedule.dart';
 
 class MajorsScheduleScreen extends StatefulWidget {
   final String universityName;
@@ -16,29 +18,34 @@ class MajorsScheduleScreen extends StatefulWidget {
 
 class _MajorsScheduleScreenState extends State<MajorsScheduleScreen> {
   String _searchQuery = '';
+  List<String> _majorNames = [];
+  bool _isLoading = true;
 
-  // Sample list of majors
-  final List<String> majorNames = [
-    'مهندسی کامپیوتر',
-    'مهندسی برق',
-    'مهندسی مکانیک',
-    'مهندسی شیمی',
-    'مهندسی عمران',
-    'علوم کامپیوتر',
-    'ریاضی کاربردی',
-    'فیزیک',
-    'شیمی',
-    'مدیریت',
-    'حسابداری',
-    'اقتصاد',
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _loadMajors();
+  }
+
+  Future<void> _loadMajors() async {
+    final scheduleService = ScheduleService();
+    final data = await scheduleService.loadScheduleData();
+    setState(() {
+      _majorNames = data
+          .where((entry) => entry.university == widget.universityName)
+          .map((entry) => entry.majorName)
+          .toSet()
+          .toList();
+      _isLoading = false;
+    });
+  }
 
   // Filtered list of majors based on search query
   List<String> get filteredMajors {
     if (_searchQuery.isEmpty) {
-      return majorNames;
+      return _majorNames;
     }
-    return majorNames.where((major) {
+    return _majorNames.where((major) {
       return major.contains(_searchQuery);
     }).toList();
   }
@@ -104,7 +111,9 @@ class _MajorsScheduleScreenState extends State<MajorsScheduleScreen> {
               ),
               // List of major buttons
               Expanded(
-                child: ListView.builder(
+                child: _isLoading
+                    ? Center(child: CircularProgressIndicator())
+                    : ListView.builder(
                   padding: EdgeInsets.symmetric(vertical: 8),
                   itemCount: filteredMajors.length,
                   itemBuilder: (context, index) {

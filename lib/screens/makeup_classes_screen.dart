@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shamsi_date/shamsi_date.dart' as shamsi;
 import '../theme_provider.dart';
 import '../theme_toggle_button.dart';
 import '../widgets/SearchBarWidget.dart';
+import '../schedule_service.dart';
+import '../class_schedule.dart';
 
 class MakeupClassesScreen extends StatefulWidget {
   final String universityName;
@@ -15,54 +18,53 @@ class MakeupClassesScreen extends StatefulWidget {
 
 class _MakeupClassesScreenState extends State<MakeupClassesScreen> {
   String _searchQuery = '';
+  List<ClassSchedule> _makeupClassesData = [];
+  bool _isLoading = true;
 
-  // Sample data for make-up classes (List<Map<String, String>> format)
-  final List<Map<String, String>> makeupClassesData = [
-    {
-      'day': 'شنبه',
-      'startTime': '۱۰:۰۰',
-      'endTime': '۱۱:۳۰',
-      'className': 'ریاضی عمومی',
-      'classCode': 'ج',
-    },
-    {
-      'day': 'یکشنبه',
-      'startTime': '۱۴:۰۰',
-      'endTime': '۱۵:۳۰',
-      'className': 'فیزیک',
-      'classCode': 'ج',
-    },
-    {
-      'day': 'دوشنبه',
-      'startTime': '۸:۰۰',
-      'endTime': '۹:۳۰',
-      'className': 'برنامه نویسی',
-      'classCode': 'ج',
-    },
-    {
-      'day': 'سه‌شنبه',
-      'startTime': '۱۲:۰۰',
-      'endTime': '۱۳:۳۰',
-      'className': 'شیمی',
-      'classCode': 'ج',
-    },
-    {
-      'day': 'چهارشنبه',
-      'startTime': '۱۶:۰۰',
-      'endTime': '۱۷:۳۰',
-      'className': 'مدارهای الکتریکی',
-      'classCode': 'ج',
-    },
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _loadMakeupClasses();
+  }
+
+  Future<void> _loadMakeupClasses() async {
+    final scheduleService = ScheduleService();
+    final data = await scheduleService.loadScheduleData();
+    setState(() {
+      _makeupClassesData = data
+          .where((entry) =>
+      entry.university == widget.universityName &&
+          entry.makeupDate != null)
+          .toList();
+      _isLoading = false;
+    });
+  }
+
+  // Helper method to convert weekDay integer to Persian day name based on makeupDate
+  String _getPersianDayName(String makeupDate) {
+    final weekDay = shamsi.Jalali.fromDateTime(
+      DateTime.parse('${makeupDate.replaceAll('/', '-')}T00:00:00Z'),
+    ).weekDay;
+    const List<String> days = [
+      'شنبه',   // 1
+      'یکشنبه', // 2
+      'دوشنبه', // 3
+      'سه‌شنبه', // 4
+      'چهارشنبه', // 5
+      'پنج‌شنبه', // 6
+      'جمعه',   // 7
+    ];
+    return days[weekDay - 1];
+  }
 
   // Filtered data based on search query
-  List<Map<String, String>> get filteredClasses {
+  List<ClassSchedule> get filteredClasses {
     if (_searchQuery.isEmpty) {
-      return makeupClassesData;
+      return _makeupClassesData;
     }
-    return makeupClassesData.where((entry) {
-      return entry['className']!.contains(_searchQuery);
-    }).toList();
+    return _makeupClassesData
+        .where((entry) => entry.className.contains(_searchQuery))
+        .toList();
   }
 
   @override
@@ -126,7 +128,9 @@ class _MakeupClassesScreenState extends State<MakeupClassesScreen> {
               ),
               // Table
               Expanded(
-                child: SingleChildScrollView(
+                child: _isLoading
+                    ? Center(child: CircularProgressIndicator())
+                    : SingleChildScrollView(
                   scrollDirection: Axis.vertical,
                   child: SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
@@ -191,10 +195,11 @@ class _MakeupClassesScreenState extends State<MakeupClassesScreen> {
                         ),
                       ],
                       rows: filteredClasses.map((entry) {
+                        final dayName = _getPersianDayName(entry.makeupDate!);
                         return DataRow(cells: [
                           DataCell(
                             Text(
-                              entry['day']!,
+                              dayName,
                               style: TextStyle(
                                 color: textColor,
                                 fontFamily: 'Vazir',
@@ -203,7 +208,7 @@ class _MakeupClassesScreenState extends State<MakeupClassesScreen> {
                           ),
                           DataCell(
                             Text(
-                              entry['startTime']!,
+                              entry.classTime.start,
                               style: TextStyle(
                                 color: textColor,
                                 fontFamily: 'Vazir',
@@ -212,7 +217,7 @@ class _MakeupClassesScreenState extends State<MakeupClassesScreen> {
                           ),
                           DataCell(
                             Text(
-                              entry['endTime']!,
+                              entry.classTime.end,
                               style: TextStyle(
                                 color: textColor,
                                 fontFamily: 'Vazir',
@@ -221,7 +226,7 @@ class _MakeupClassesScreenState extends State<MakeupClassesScreen> {
                           ),
                           DataCell(
                             Text(
-                              entry['className']!,
+                              entry.className,
                               style: TextStyle(
                                 color: textColor,
                                 fontFamily: 'Vazir',
@@ -230,7 +235,7 @@ class _MakeupClassesScreenState extends State<MakeupClassesScreen> {
                           ),
                           DataCell(
                             Text(
-                              entry['classCode']!,
+                              entry.classCode,
                               style: TextStyle(
                                 color: textColor,
                                 fontFamily: 'Vazir',

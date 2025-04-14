@@ -16,7 +16,7 @@ class ThemeToggleButton extends StatelessWidget {
         padding: const EdgeInsets.all(10.0),
         child: IconButton(
           icon: Icon(
-            themeProvider.isDarkMode ? Icons.light_mode : Icons.dark_mode,
+            themeProvider.isDarkMode ? Icons.light_mode : Icons.dark_mode,size: 30,
             color: textColor,
           ),
           onPressed: () => themeProvider.toggleTheme(),

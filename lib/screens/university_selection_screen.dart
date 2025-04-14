@@ -3,33 +3,60 @@ import 'package:provider/provider.dart';
 import '../theme_provider.dart';
 import 'university_dashboard_screen.dart';
 import '../theme_toggle_button.dart';
+import '../schedule_service.dart';
+import '../class_schedule.dart';
 
-class UniversitySelectionScreen extends StatelessWidget {
-  final List<String> universities = [
-    'خلیج فارس',
-    'شیراز',
-    'تهران',
-    'صنعتی شریف',
-    'اصفهان',
-    'تبریز',
-    'علامه طباطبایی',
-    'خواجه نصیر',
-  ];
+class UniversitySelectionScreen extends StatefulWidget {
+  @override
+  _UniversitySelectionScreenState createState() => _UniversitySelectionScreenState();
+}
+
+class _UniversitySelectionScreenState extends State<UniversitySelectionScreen> {
+  List<String> universities = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUniversities();
+  }
+
+  Future<void> _loadUniversities() async {
+    final scheduleService = ScheduleService();
+    final data = await scheduleService.loadScheduleData();
+    setState(() {
+      universities = data.map((entry) => entry.university).toSet().toList();
+      _isLoading = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
     final textColor = themeProvider.isDarkMode ? Colors.white : Color(0xff4a4a4a);
+    final backgroundColor = themeProvider.isDarkMode ? Color(0xFF383C4A) : Colors.white;
 
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        backgroundColor: themeProvider.isDarkMode ? Color(0xFF383C4A) : Colors.white,
+        backgroundColor: backgroundColor,
         body: SafeArea(
           child: Column(
             children: [
-              // Theme toggle button
-              ThemeToggleButton(),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    ThemeToggleButton(),
+                    SizedBox(width: 48), // Placeholder to balance the row on the left
+                    Expanded(
+                      child: SizedBox(), // Empty space to push ThemeToggleButton to the right
+                    ),
+                     // Moved to the top right
+                  ],
+                ),
+              ),
               // Fixed header section
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 10),
@@ -66,7 +93,9 @@ class UniversitySelectionScreen extends StatelessWidget {
               ),
               // Scrollable university list
               Expanded(
-                child: ListView.builder(
+                child: _isLoading
+                    ? Center(child: CircularProgressIndicator())
+                    : ListView.builder(
                   itemCount: universities.length,
                   itemBuilder: (context, index) {
                     return Center(
@@ -75,8 +104,18 @@ class UniversitySelectionScreen extends StatelessWidget {
                         onTap: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(
-                              builder: (_) => UniversityDashboardScreen(universityName: universities[index]),
+                            PageRouteBuilder(
+                              pageBuilder: (context, animation, secondaryAnimation) =>
+                                  UniversityDashboardScreen(
+                                    universityName: universities[index],
+                                  ),
+                              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                                return FadeTransition(
+                                  opacity: animation,
+                                  child: child,
+                                );
+                              },
+                              transitionDuration: Duration(milliseconds: 300),
                             ),
                           );
                         },

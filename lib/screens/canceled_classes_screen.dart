@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shamsi_date/shamsi_date.dart' as shamsi;
 import '../theme_provider.dart';
 import '../theme_toggle_button.dart';
 import '../widgets/SearchBarWidget.dart';
+import '../schedule_service.dart';
+import '../class_schedule.dart';
 
 class CanceledClassesScreen extends StatefulWidget {
   final String universityName;
@@ -15,75 +18,52 @@ class CanceledClassesScreen extends StatefulWidget {
 
 class _CanceledClassesScreenState extends State<CanceledClassesScreen> {
   String _searchQuery = '';
+  List<ClassSchedule> _canceledClassesData = [];
+  bool _isLoading = true;
 
-  // Sample data for canceled classes (List<Map<String, String>> format)
-  final List<Map<String, String>> canceledClassesData = [
-    {
-      'day': 'شنبه',
-      'startTime': '۸:۰۰',
-      'endTime': '۹:۳۰',
-      'className': 'الگوریتم',
-      'classCode': 'ش',
-    },
-    {
-      'day': 'شنبه',
-      'startTime': '۹:۳۰',
-      'endTime': '۱۱:۰۰',
-      'className': 'سیستم عامل',
-      'classCode': 'ش',
-    },
-    {
-      'day': 'شنبه',
-      'startTime': '۱۱:۰۰',
-      'endTime': '۱۲:۳۰',
-      'className': 'پایگاه داده',
-      'classCode': 'ش',
-    },
-    {
-      'day': 'یکشنبه',
-      'startTime': '۸:۰۰',
-      'endTime': '۹:۳۰',
-      'className': 'الگوریتم',
-      'classCode': 'ش',
-    },
-    {
-      'day': 'یکشنبه',
-      'startTime': '۹:۳۰',
-      'endTime': '۱۱:۰۰',
-      'className': 'سیستم عامل',
-      'classCode': 'ش',
-    },
-    {
-      'day': 'دوشنبه',
-      'startTime': '۱۱:۰۰',
-      'endTime': '۱۲:۳۰',
-      'className': 'پایگاه داده',
-      'classCode': 'ش',
-    },
-    {
-      'day': 'سه‌شنبه',
-      'startTime': '۱۳:۳۰',
-      'endTime': '۱۵:۰۰',
-      'className': 'زبان تخصصی',
-      'classCode': 'ش',
-    },
-    {
-      'day': 'چهارشنبه',
-      'startTime': '۱۵:۰۰',
-      'endTime': '۱۶:۳۰',
-      'className': 'شبکه',
-      'classCode': 'ش',
-    },
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _loadCanceledClasses();
+  }
+
+  Future<void> _loadCanceledClasses() async {
+    final scheduleService = ScheduleService();
+    final data = await scheduleService.loadScheduleData();
+    setState(() {
+      _canceledClassesData = data
+          .where((entry) =>
+      entry.university == widget.universityName && entry.isCanceled)
+          .toList();
+      _isLoading = false;
+    });
+  }
+
+  // Helper method to convert weekDay integer to Persian day name
+  String _getPersianDayName(String classDate) {
+    final weekDay = shamsi.Jalali.fromDateTime(
+      DateTime.parse('${classDate.replaceAll('/', '-')}T00:00:00Z'),
+    ).weekDay;
+    const List<String> days = [
+      'شنبه',   // 1
+      'یکشنبه', // 2
+      'دوشنبه', // 3
+      'سه‌شنبه', // 4
+      'چهارشنبه', // 5
+      'پنج‌شنبه', // 6
+      'جمعه',   // 7
+    ];
+    return days[weekDay - 1];
+  }
 
   // Filtered data based on search query
-  List<Map<String, String>> get filteredClasses {
+  List<ClassSchedule> get filteredClasses {
     if (_searchQuery.isEmpty) {
-      return canceledClassesData;
+      return _canceledClassesData;
     }
-    return canceledClassesData.where((entry) {
-      return entry['className']!.contains(_searchQuery);
-    }).toList();
+    return _canceledClassesData
+        .where((entry) => entry.className.contains(_searchQuery))
+        .toList();
   }
 
   @override
@@ -100,20 +80,33 @@ class _CanceledClassesScreenState extends State<CanceledClassesScreen> {
         body: SafeArea(
           child: Column(
             children: [
-              // Theme toggle button
-              ThemeToggleButton(),
-              SizedBox(height: 8), // Reduced from 16 to 8
-              Center(
-                child: Text(
-                  'دانشگاه ${widget.universityName}',
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: textColor,
-                    fontFamily: 'Vazir',
-                  ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    ThemeToggleButton(),
+                    Expanded(
+                      child: Center(
+                        child: Text(
+                          'دانشگاه ${widget.universityName}',
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                            color: textColor,
+                            fontFamily: 'Vazir',
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 48), // Placeholder to balance the row
+                  ],
                 ),
               ),
+              // Theme toggle button
+
+              // Reduced from 16 to 8
+
               // Page title
               SizedBox(height: 10),
               Center(
@@ -137,7 +130,9 @@ class _CanceledClassesScreenState extends State<CanceledClassesScreen> {
               ),
               // Table
               Expanded(
-                child: SingleChildScrollView(
+                child: _isLoading
+                    ? Center(child: CircularProgressIndicator())
+                    : SingleChildScrollView(
                   scrollDirection: Axis.vertical,
                   child: SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
@@ -202,10 +197,11 @@ class _CanceledClassesScreenState extends State<CanceledClassesScreen> {
                         ),
                       ],
                       rows: filteredClasses.map((entry) {
+                        final dayName = _getPersianDayName(entry.classDate);
                         return DataRow(cells: [
                           DataCell(
                             Text(
-                              entry['day']!,
+                              dayName,
                               style: TextStyle(
                                 color: textColor,
                                 fontFamily: 'Vazir',
@@ -214,7 +210,7 @@ class _CanceledClassesScreenState extends State<CanceledClassesScreen> {
                           ),
                           DataCell(
                             Text(
-                              entry['startTime']!,
+                              entry.classTime.start,
                               style: TextStyle(
                                 color: textColor,
                                 fontFamily: 'Vazir',
@@ -223,7 +219,7 @@ class _CanceledClassesScreenState extends State<CanceledClassesScreen> {
                           ),
                           DataCell(
                             Text(
-                              entry['endTime']!,
+                              entry.classTime.end,
                               style: TextStyle(
                                 color: textColor,
                                 fontFamily: 'Vazir',
@@ -232,7 +228,7 @@ class _CanceledClassesScreenState extends State<CanceledClassesScreen> {
                           ),
                           DataCell(
                             Text(
-                              entry['className']!,
+                              entry.className,
                               style: TextStyle(
                                 color: textColor,
                                 fontFamily: 'Vazir',
@@ -241,7 +237,7 @@ class _CanceledClassesScreenState extends State<CanceledClassesScreen> {
                           ),
                           DataCell(
                             Text(
-                              entry['classCode']!,
+                              entry.classCode,
                               style: TextStyle(
                                 color: textColor,
                                 fontFamily: 'Vazir',

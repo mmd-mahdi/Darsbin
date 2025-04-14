@@ -7,7 +7,7 @@ import 'canceled_classes_screen.dart';
 import 'makeup_classes_screen.dart';
 import 'exam_schedule_screen.dart';
 import 'professors_schedule_screen.dart';
-import 'majors_schedule_screen.dart'; // Import the new screen
+import 'majors_schedule_screen.dart';
 
 class UniversityDashboardScreen extends StatelessWidget {
   final String universityName;
@@ -35,13 +35,13 @@ class UniversityDashboardScreen extends StatelessWidget {
       body: SafeArea(
         child: Column(
           children: [
-            // Header with ThemeToggleButton and University Name
+            // Header with University Name and ThemeToggleButton
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  ThemeToggleButton(),
+                  SizedBox(width: 48), // Placeholder to balance the row on the left
                   Expanded(
                     child: Center(
                       child: Text(
@@ -55,7 +55,7 @@ class UniversityDashboardScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  SizedBox(width: 48), // Placeholder to balance the row
+                  ThemeToggleButton(), // Moved to the right side
                 ],
               ),
             ),

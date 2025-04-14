@@ -1,0 +1,92 @@
+[
+  {
+    "class_name": "الگوریتم",
+    "professor_name": "دکتر احمدی",
+    "major_name": "مهندسی کامپیوتر",
+    "university": "تهران",
+    "location": "کلاس ۱۰۱",
+    "class_time": {
+      "start": "۸:۰۰",
+      "end": "۹:۳۰"
+    },
+    "class_date": "1404/03/13",
+    "is_canceled": false,
+    "makeup_date": null,
+    "final_exam_date": "1404/03/13",
+    "midterm_exam_date": "1404/03/13",
+    "class_code": "ش-الگ-۱",
+    "professor_code": "استاد-احمدی-۱"
+  },
+  {
+    "class_name": "سیستم عامل",
+    "professor_name": "دکتر احمدی",
+    "major_name": "مهندسی کامپیوتر",
+    "university": "تهران",
+    "location": "کلاس ۱۰۲",
+    "class_time": {
+      "start": "۹:۳۰",
+      "end": "۱۱:۰۰"
+    },
+    "class_date": "1404/03/13",
+    "is_canceled": true,
+    "makeup_date": "1404/03/13",
+    "final_exam_date": "1404/03/13",
+    "midterm_exam_date": "1404/03/13",
+    "class_code": "ش-سیس-۲",
+    "professor_code": "استاد-احمدی-۱"
+  },
+  {
+    "class_name": "مدارهای الکتریکی",
+    "professor_name": "دکتر کاظمی",
+    "major_name": "مهندسی برق",
+    "university": "شریف",
+    "location": "کلاس ۲۰۱",
+    "class_time": {
+      "start": "۱۰:۰۰",
+      "end": "۱۱:۳۰"
+    },
+    "class_date": "1404/03/13",
+    "is_canceled": false,
+    "makeup_date": null,
+    "final_exam_date": "1404/03/13",
+    "midterm_exam_date": "1404/03/13",
+    "class_code": "ش-مدار-۱",
+    "professor_code": "استاد-کاظمی-۲"
+  },
+  {
+    "class_name": "ریاضی پیشرفته",
+    "professor_name": "دکتر رضایی",
+    "major_name": "ریاضی کاربردی",
+    "university": "امیرکبیر",
+    "location": "کلاس ۳۰۱",
+    "class_time": {
+      "start": "۱۳:۰۰",
+      "end": "۱۴:۳۰"
+    },
+    "class_date": "1404/03/13",
+    "is_canceled": false,
+    "makeup_date": null,
+    "final_exam_date": "1404/03/13",
+    "midterm_exam_date": "1404/03/13",
+    "class_code": "ش-ریاضی-۱",
+    "professor_code": "استاد-رضایی-۳"
+  },
+  {
+    "class_name": "شیمی آلی",
+    "professor_name": "دکتر حسینی",
+    "major_name": "مهندسی شیمی",
+    "university": "علم و صنعت",
+    "location": "کلاس ۴۰۱",
+    "class_time": {
+      "start": "۱۱:۰۰",
+      "end": "۱۲:۳۰"
+    },
+    "class_date": "1404/03/13",
+    "is_canceled": true,
+    "makeup_date": "1404/03/13",
+    "final_exam_date": "1404/03/13",
+    "midterm_exam_date": "1404/03/13",
+    "class_code": "ش-شیمی-۱",
+    "professor_code": "استاد-حسینی-۴"
+  }
+]

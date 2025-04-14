@@ -2,21 +2,41 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../theme_provider.dart';
 import '../theme_toggle_button.dart';
-import 'professor_classes_screen.dart'; // Import the new screen
+import 'professor_classes_screen.dart';
+import '../schedule_service.dart';
+import '../class_schedule.dart';
 
-class ProfessorsScheduleScreen extends StatelessWidget {
+class ProfessorsScheduleScreen extends StatefulWidget {
   final String universityName;
 
-  ProfessorsScheduleScreen({required this.universityName});
+  const ProfessorsScheduleScreen({required this.universityName});
 
-  // Sample list of professor names
-  final List<String> professorNames = [
-    'دکتر احمدی',
-    'دکتر رضایی',
-    'دکتر محمدی',
-    'دکتر حسینی',
-    'دکتر کاظمی',
-  ];
+  @override
+  _ProfessorsScheduleScreenState createState() => _ProfessorsScheduleScreenState();
+}
+
+class _ProfessorsScheduleScreenState extends State<ProfessorsScheduleScreen> {
+  List<String> _professorNames = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProfessors();
+  }
+
+  Future<void> _loadProfessors() async {
+    final scheduleService = ScheduleService();
+    final data = await scheduleService.loadScheduleData();
+    setState(() {
+      _professorNames = data
+          .where((entry) => entry.university == widget.universityName)
+          .map((entry) => entry.professorName)
+          .toSet()
+          .toList();
+      _isLoading = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +62,7 @@ class ProfessorsScheduleScreen extends StatelessWidget {
                     Expanded(
                       child: Center(
                         child: Text(
-                          'دانشگاه $universityName',
+                          'دانشگاه ${widget.universityName}',
                           style: TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.bold,
@@ -71,9 +91,11 @@ class ProfessorsScheduleScreen extends StatelessWidget {
               ),
               // List of professor buttons
               Expanded(
-                child: ListView.builder(
+                child: _isLoading
+                    ? Center(child: CircularProgressIndicator())
+                    : ListView.builder(
                   padding: EdgeInsets.symmetric(vertical: 8),
-                  itemCount: professorNames.length,
+                  itemCount: _professorNames.length,
                   itemBuilder: (context, index) {
                     return Center(
                       child: Container(
@@ -86,8 +108,8 @@ class ProfessorsScheduleScreen extends StatelessWidget {
                               context,
                               MaterialPageRoute(
                                 builder: (_) => ProfessorClassesScreen(
-                                  universityName: universityName,
-                                  professorName: professorNames[index],
+                                  universityName: widget.universityName,
+                                  professorName: _professorNames[index],
                                 ),
                               ),
                             );
@@ -100,7 +122,7 @@ class ProfessorsScheduleScreen extends StatelessWidget {
                             ),
                           ),
                           child: Text(
-                            professorNames[index],
+                            _professorNames[index],
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,

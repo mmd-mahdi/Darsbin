@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:shamsi_date/shamsi_date.dart' as shamsi;
 import '../theme_provider.dart';
 import '../theme_toggle_button.dart';
+import '../schedule_service.dart';
+import '../class_schedule.dart';
 
 class DailyScheduleScreen extends StatefulWidget {
   final String universityName;
@@ -15,197 +17,46 @@ class DailyScheduleScreen extends StatefulWidget {
 
 class _DailyScheduleScreenState extends State<DailyScheduleScreen> {
   late shamsi.Jalali _selectedDate;
+  List<ClassSchedule> _scheduleData = [];
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
     // Initialize with today's date in Jalali calendar
     _selectedDate = shamsi.Jalali.now();
+    _loadScheduleData();
   }
 
-  // Sample data (List<Map<String, String>> format)
-  final List<Map<String, String>> scheduleData = [
-    // Saturday
-    {
-      'day': 'شنبه',
-      'startTime': '۸:۰۰',
-      'endTime': '۹:۳۰',
-      'className': 'الگوریتم',
-      'classCode': 'ش',
-    },
-    {
-      'day': 'شنبه',
-      'startTime': '۹:۳۰',
-      'endTime': '۱۱:۰۰',
-      'className': 'سیستم عامل',
-      'classCode': 'ش',
-    },
-    {
-      'day': 'شنبه',
-      'startTime': '۱۱:۰۰',
-      'endTime': '۱۲:۳۰',
-      'className': 'پایگاه داده',
-      'classCode': 'ش',
-    },
-    {
-      'day': 'شنبه',
-      'startTime': '۱۳:۳۰',
-      'endTime': '۱۵:۰۰',
-      'className': 'زبان تخصصی',
-      'classCode': 'ش',
-    },
-    {
-      'day': 'شنبه',
-      'startTime': '۱۵:۰۰',
-      'endTime': '۱۶:۳۰',
-      'className': 'شبکه',
-      'classCode': 'ش',
-    },
-    // Sunday
-    {
-      'day': 'یکشنبه',
-      'startTime': '۸:۰۰',
-      'endTime': '۹:۳۰',
-      'className': 'الگوریتم',
-      'classCode': 'ش',
-    },
-    {
-      'day': 'یکشنبه',
-      'startTime': '۹:۳۰',
-      'endTime': '۱۱:۰۰',
-      'className': 'سیستم عامل',
-      'classCode': 'ش',
-    },
-    {
-      'day': 'یکشنبه',
-      'startTime': '۱۱:۰۰',
-      'endTime': '۱۲:۳۰',
-      'className': 'پایگاه داده',
-      'classCode': 'ش',
-    },
-    {
-      'day': 'یکشنبه',
-      'startTime': '۱۳:۳۰',
-      'endTime': '۱۵:۰۰',
-      'className': 'زبان تخصصی',
-      'classCode': 'ش',
-    },
-    {
-      'day': 'یکشنبه',
-      'startTime': '۱۵:۰۰',
-      'endTime': '۱۶:۳۰',
-      'className': 'شبکه',
-      'classCode': 'ش',
-    },
-    // Monday
-    {
-      'day': 'دوشنبه',
-      'startTime': '۸:۰۰',
-      'endTime': '۹:۳۰',
-      'className': 'الگوریتم',
-      'classCode': 'ش',
-    },
-    {
-      'day': 'دوشنبه',
-      'startTime': '۹:۳۰',
-      'endTime': '۱۱:۰۰',
-      'className': 'سیستم عامل',
-      'classCode': 'ش',
-    },
-    {
-      'day': 'دوشنبه',
-      'startTime': '۱۱:۰۰',
-      'endTime': '۱۲:۳۰',
-      'className': 'پایگاه داده',
-      'classCode': 'ش',
-    },
-    {
-      'day': 'دوشنبه',
-      'startTime': '۱۳:۳۰',
-      'endTime': '۱۵:۰۰',
-      'className': 'زبان تخصصی',
-      'classCode': 'ش',
-    },
-    {
-      'day': 'دوشنبه',
-      'startTime': '۱۵:۰۰',
-      'endTime': '۱۶:۳۰',
-      'className': 'شبکه',
-      'classCode': 'ش',
-    },
-    // Tuesday
-    {
-      'day': 'سه‌شنبه',
-      'startTime': '۸:۰۰',
-      'endTime': '۹:۳۰',
-      'className': 'الگوریتم',
-      'classCode': 'ش',
-    },
-    {
-      'day': 'سه‌شنبه',
-      'startTime': '۹:۳۰',
-      'endTime': '۱۱:۰۰',
-      'className': 'سیستم عامل',
-      'classCode': 'ش',
-    },
-    {
-      'day': 'سه‌شنبه',
-      'startTime': '۱۱:۰۰',
-      'endTime': '۱۲:۳۰',
-      'className': 'پایگاه داده',
-      'classCode': 'ش',
-    },
-    {
-      'day': 'سه‌شنبه',
-      'startTime': '۱۳:۳۰',
-      'endTime': '۱۵:۰۰',
-      'className': 'زبان تخصصی',
-      'classCode': 'ش',
-    },
-    {
-      'day': 'سه‌شنبه',
-      'startTime': '۱۵:۰۰',
-      'endTime': '۱۶:۳۰',
-      'className': 'شبکه',
-      'classCode': 'ش',
-    },
-    // Wednesday
-    {
-      'day': 'چهارشنبه',
-      'startTime': '۸:۰۰',
-      'endTime': '۹:۳۰',
-      'className': 'الگوریتم',
-      'classCode': 'ش',
-    },
-    {
-      'day': 'چهارشنبه',
-      'startTime': '۹:۳۰',
-      'endTime': '۱۱:۰۰',
-      'className': 'سیستم عامل',
-      'classCode': 'ش',
-    },
-    {
-      'day': 'چهارشنبه',
-      'startTime': '۱۱:۰۰',
-      'endTime': '۱۲:۳۰',
-      'className': 'پایگاه داده',
-      'classCode': 'ش',
-    },
-    {
-      'day': 'چهارشنبه',
-      'startTime': '۱۳:۳۰',
-      'endTime': '۱۵:۰۰',
-      'className': 'زبان تخصصی',
-      'classCode': 'ش',
-    },
-    {
-      'day': 'چهارشنبه',
-      'startTime': '۱۵:۰۰',
-      'endTime': '۱۶:۳۰',
-      'className': 'شبکه',
-      'classCode': 'ش',
-    },
-  ];
+  Future<void> _loadScheduleData() async {
+    final scheduleService = ScheduleService();
+    final data = await scheduleService.loadScheduleData();
+    setState(() {
+      _scheduleData = data.where((entry) => entry.university == widget.universityName).toList();
+      _isLoading = false;
+    });
+  }
+
+  // Filter data by selected date
+  List<ClassSchedule> get _filteredSchedule {
+    final selectedDateStr =
+        '${_selectedDate.year}/${_selectedDate.month.toString().padLeft(2, '0')}/${_selectedDate.day.toString().padLeft(2, '0')}';
+    return _scheduleData.where((entry) => entry.classDate == selectedDateStr).toList();
+  }
+
+  // Helper method to convert weekDay integer to Persian day name
+  String _getPersianDayName(int weekDay) {
+    const List<String> days = [
+      'شنبه',   // 1
+      'یکشنبه', // 2
+      'دوشنبه', // 3
+      'سه‌شنبه', // 4
+      'چهارشنبه', // 5
+      'پنج‌شنبه', // 6
+      'جمعه',   // 7
+    ];
+    return days[weekDay - 1];
+  }
 
   // Increment date by one day
   void _incrementDate() {
@@ -237,7 +88,7 @@ class _DailyScheduleScreenState extends State<DailyScheduleScreen> {
       setState(() {
         _selectedDate = picked;
       });
-    }
+    };
   }
 
   @override
@@ -254,20 +105,31 @@ class _DailyScheduleScreenState extends State<DailyScheduleScreen> {
         body: SafeArea(
           child: Column(
             children: [
-              // Theme toggle button
-              ThemeToggleButton(),
-              SizedBox(height: 8), // Reduced from 16 to 8
-              Center(
-                child: Text(
-                  'دانشگاه ${widget.universityName}',
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: textColor,
-                    fontFamily: 'Vazir',
-                  ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    ThemeToggleButton(),
+                    Expanded(
+                      child: Center(
+                        child: Text(
+                          'دانشگاه ${widget.universityName}',
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                            color: textColor,
+                            fontFamily: 'Vazir',
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 48), // Placeholder to balance the row
+                  ],
                 ),
               ),
+              // Theme toggle button
+
               // Page title
               SizedBox(height: 10),
               Center(
@@ -318,7 +180,9 @@ class _DailyScheduleScreenState extends State<DailyScheduleScreen> {
               ),
               // Table
               Expanded(
-                child: SingleChildScrollView(
+                child: _isLoading
+                    ? Center(child: CircularProgressIndicator())
+                    : SingleChildScrollView(
                   scrollDirection: Axis.vertical,
                   child: SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
@@ -382,11 +246,15 @@ class _DailyScheduleScreenState extends State<DailyScheduleScreen> {
                           ),
                         ),
                       ],
-                      rows: scheduleData.map((entry) {
+                      rows: _filteredSchedule.map((entry) {
+                        final weekDay = shamsi.Jalali.fromDateTime(
+                          DateTime.parse('${entry.classDate.replaceAll('/', '-')}T00:00:00Z'),
+                        ).weekDay;
+                        final dayName = _getPersianDayName(weekDay);
                         return DataRow(cells: [
                           DataCell(
                             Text(
-                              entry['day']!,
+                              dayName,
                               style: TextStyle(
                                 color: textColor,
                                 fontFamily: 'Vazir',
@@ -395,7 +263,7 @@ class _DailyScheduleScreenState extends State<DailyScheduleScreen> {
                           ),
                           DataCell(
                             Text(
-                              entry['startTime']!,
+                              entry.classTime.start,
                               style: TextStyle(
                                 color: textColor,
                                 fontFamily: 'Vazir',
@@ -404,7 +272,7 @@ class _DailyScheduleScreenState extends State<DailyScheduleScreen> {
                           ),
                           DataCell(
                             Text(
-                              entry['endTime']!,
+                              entry.classTime.end,
                               style: TextStyle(
                                 color: textColor,
                                 fontFamily: 'Vazir',
@@ -413,7 +281,7 @@ class _DailyScheduleScreenState extends State<DailyScheduleScreen> {
                           ),
                           DataCell(
                             Text(
-                              entry['className']!,
+                              entry.className,
                               style: TextStyle(
                                 color: textColor,
                                 fontFamily: 'Vazir',
@@ -422,7 +290,7 @@ class _DailyScheduleScreenState extends State<DailyScheduleScreen> {
                           ),
                           DataCell(
                             Text(
-                              entry['classCode']!,
+                              entry.classCode,
                               style: TextStyle(
                                 color: textColor,
                                 fontFamily: 'Vazir',

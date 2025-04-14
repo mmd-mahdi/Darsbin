@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shamsi_date/shamsi_date.dart' as shamsi;
 import '../theme_provider.dart';
 import '../theme_toggle_button.dart';
 import '../widgets/SearchBarWidget.dart';
+import '../schedule_service.dart';
+import '../class_schedule.dart';
 
 class MajorClassesScreen extends StatefulWidget {
   final String universityName;
@@ -19,220 +22,53 @@ class MajorClassesScreen extends StatefulWidget {
 
 class _MajorClassesScreenState extends State<MajorClassesScreen> {
   String _searchQuery = '';
+  List<ClassSchedule> _majorClasses = [];
+  bool _isLoading = true;
 
-  // Sample data for major's classes (List<Map<String, String>> format)
-  // We'll use a map to store different schedules for different majors
-  final Map<String, List<Map<String, String>>> majorSchedules = {
-    'مهندسی کامپیوتر': [
-      {
-        'day': 'شنبه',
-        'startTime': '۸:۰۰',
-        'endTime': '۹:۳۰',
-        'className': 'الگوریتم',
-        'classCode': 'ش',
-      },
-      {
-        'day': 'دوشنبه',
-        'startTime': '۱۰:۰۰',
-        'endTime': '۱۱:۳۰',
-        'className': 'سیستم عامل',
-        'classCode': 'ش',
-      },
-      {
-        'day': 'چهارشنبه',
-        'startTime': '۱۴:۰۰',
-        'endTime': '۱۵:۳۰',
-        'className': 'پایگاه داده',
-        'classCode': 'ش',
-      },
-    ],
-    'مهندسی برق': [
-      {
-        'day': 'یکشنبه',
-        'startTime': '۹:۰۰',
-        'endTime': '۱۰:۳۰',
-        'className': 'مدارهای الکتریکی',
-        'classCode': 'ش',
-      },
-      {
-        'day': 'سه‌شنبه',
-        'startTime': '۱۱:۰۰',
-        'endTime': '۱۲:۳۰',
-        'className': 'الکترونیک',
-        'classCode': 'ش',
-      },
-    ],
-    'مهندسی مکانیک': [
-      {
-        'day': 'شنبه',
-        'startTime': '۱۳:۰۰',
-        'endTime': '۱۴:۳۰',
-        'className': 'ترمودینامیک',
-        'classCode': 'ش',
-      },
-      {
-        'day': 'دوشنبه',
-        'startTime': '۱۵:۰۰',
-        'endTime': '۱۶:۳۰',
-        'className': 'مکانیک سیالات',
-        'classCode': 'ش',
-      },
-    ],
-    'مهندسی شیمی': [
-      {
-        'day': 'یکشنبه',
-        'startTime': '۱۰:۰۰',
-        'endTime': '۱۱:۳۰',
-        'className': 'شیمی آلی',
-        'classCode': 'ش',
-      },
-      {
-        'day': 'سه‌شنبه',
-        'startTime': '۱۴:۰۰',
-        'endTime': '۱۵:۳۰',
-        'className': 'انتقال جرم',
-        'classCode': 'ش',
-      },
-    ],
-    'مهندسی عمران': [
-      {
-        'day': 'دوشنبه',
-        'startTime': '۹:۰۰',
-        'endTime': '۱۰:۳۰',
-        'className': 'مقاومت مصالح',
-        'classCode': 'ش',
-      },
-      {
-        'day': 'چهارشنبه',
-        'startTime': '۱۱:۰۰',
-        'endTime': '۱۲:۳۰',
-        'className': 'طراحی سازه',
-        'classCode': 'ش',
-      },
-    ],
-    'علوم کامپیوتر': [
-      {
-        'day': 'شنبه',
-        'startTime': '۸:۰۰',
-        'endTime': '۹:۳۰',
-        'className': 'هوش مصنوعی',
-        'classCode': 'ش',
-      },
-      {
-        'day': 'دوشنبه',
-        'startTime': '۱۰:۰۰',
-        'endTime': '۱۱:۳۰',
-        'className': 'شبکه‌های کامپیوتری',
-        'classCode': 'ش',
-      },
-    ],
-    'ریاضی کاربردی': [
-      {
-        'day': 'یکشنبه',
-        'startTime': '۹:۰۰',
-        'endTime': '۱۰:۳۰',
-        'className': 'آنالیز عددی',
-        'classCode': 'ش',
-      },
-      {
-        'day': 'سه‌شنبه',
-        'startTime': '۱۱:۰۰',
-        'endTime': '۱۲:۳۰',
-        'className': 'جبر خطی',
-        'classCode': 'ش',
-      },
-    ],
-    'فیزیک': [
-      {
-        'day': 'دوشنبه',
-        'startTime': '۱۳:۰۰',
-        'endTime': '۱۴:۳۰',
-        'className': 'فیزیک کوانتومی',
-        'classCode': 'ش',
-      },
-      {
-        'day': 'چهارشنبه',
-        'startTime': '۱۵:۰۰',
-        'endTime': '۱۶:۳۰',
-        'className': 'مکانیک کلاسیک',
-        'classCode': 'ش',
-      },
-    ],
-    'شیمی': [
-      {
-        'day': 'یکشنبه',
-        'startTime': '۱۰:۰۰',
-        'endTime': '۱۱:۳۰',
-        'className': 'شیمی تجزیه',
-        'classCode': 'ش',
-      },
-      {
-        'day': 'سه‌شنبه',
-        'startTime': '۱۴:۰۰',
-        'endTime': '۱۵:۳۰',
-        'className': 'شیمی معدنی',
-        'classCode': 'ش',
-      },
-    ],
-    'مدیریت': [
-      {
-        'day': 'دوشنبه',
-        'startTime': '۹:۰۰',
-        'endTime': '۱۰:۳۰',
-        'className': 'مدیریت منابع انسانی',
-        'classCode': 'ش',
-      },
-      {
-        'day': 'چهارشنبه',
-        'startTime': '۱۱:۰۰',
-        'endTime': '۱۲:۳۰',
-        'className': 'مدیریت استراتژیک',
-        'classCode': 'ش',
-      },
-    ],
-    'حسابداری': [
-      {
-        'day': 'شنبه',
-        'startTime': '۸:۰۰',
-        'endTime': '۹:۳۰',
-        'className': 'حسابداری مالی',
-        'classCode': 'ش',
-      },
-      {
-        'day': 'دوشنبه',
-        'startTime': '۱۰:۰۰',
-        'endTime': '۱۱:۳۰',
-        'className': 'حسابداری مدیریت',
-        'classCode': 'ش',
-      },
-    ],
-    'اقتصاد': [
-      {
-        'day': 'یکشنبه',
-        'startTime': '۹:۰۰',
-        'endTime': '۱۰:۳۰',
-        'className': 'اقتصاد خرد',
-        'classCode': 'ش',
-      },
-      {
-        'day': 'سه‌شنبه',
-        'startTime': '۱۱:۰۰',
-        'endTime': '۱۲:۳۰',
-        'className': 'اقتصاد کلان',
-        'classCode': 'ش',
-      },
-    ],
-  };
+  @override
+  void initState() {
+    super.initState();
+    _loadMajorClasses();
+  }
+
+  Future<void> _loadMajorClasses() async {
+    final scheduleService = ScheduleService();
+    final data = await scheduleService.loadScheduleData();
+    setState(() {
+      _majorClasses = data
+          .where((entry) =>
+      entry.university == widget.universityName &&
+          entry.majorName == widget.majorName)
+          .toList();
+      _isLoading = false;
+    });
+  }
+
+  // Helper method to convert weekDay integer to Persian day name
+  String _getPersianDayName(String classDate) {
+    final weekDay = shamsi.Jalali.fromDateTime(
+      DateTime.parse('${classDate.replaceAll('/', '-')}T00:00:00Z'),
+    ).weekDay;
+    const List<String> days = [
+      'شنبه',   // 1
+      'یکشنبه', // 2
+      'دوشنبه', // 3
+      'سه‌شنبه', // 4
+      'چهارشنبه', // 5
+      'پنج‌شنبه', // 6
+      'جمعه',   // 7
+    ];
+    return days[weekDay - 1];
+  }
 
   // Filtered data based on search query
-  List<Map<String, String>> get filteredClasses {
-    final majorClasses = majorSchedules[widget.majorName] ?? [];
+  List<ClassSchedule> get filteredClasses {
     if (_searchQuery.isEmpty) {
-      return majorClasses;
+      return _majorClasses;
     }
-    return majorClasses.where((entry) {
-      return entry['className']!.contains(_searchQuery);
-    }).toList();
+    return _majorClasses
+        .where((entry) => entry.className.contains(_searchQuery))
+        .toList();
   }
 
   @override
@@ -296,7 +132,9 @@ class _MajorClassesScreenState extends State<MajorClassesScreen> {
               ),
               // Table
               Expanded(
-                child: SingleChildScrollView(
+                child: _isLoading
+                    ? Center(child: CircularProgressIndicator())
+                    : SingleChildScrollView(
                   scrollDirection: Axis.vertical,
                   child: SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
@@ -361,10 +199,11 @@ class _MajorClassesScreenState extends State<MajorClassesScreen> {
                         ),
                       ],
                       rows: filteredClasses.map((entry) {
+                        final dayName = _getPersianDayName(entry.classDate);
                         return DataRow(cells: [
                           DataCell(
                             Text(
-                              entry['day']!,
+                              dayName,
                               style: TextStyle(
                                 color: textColor,
                                 fontFamily: 'Vazir',
@@ -373,7 +212,7 @@ class _MajorClassesScreenState extends State<MajorClassesScreen> {
                           ),
                           DataCell(
                             Text(
-                              entry['startTime']!,
+                              entry.classTime.start,
                               style: TextStyle(
                                 color: textColor,
                                 fontFamily: 'Vazir',
@@ -382,7 +221,7 @@ class _MajorClassesScreenState extends State<MajorClassesScreen> {
                           ),
                           DataCell(
                             Text(
-                              entry['endTime']!,
+                              entry.classTime.end,
                               style: TextStyle(
                                 color: textColor,
                                 fontFamily: 'Vazir',
@@ -391,7 +230,7 @@ class _MajorClassesScreenState extends State<MajorClassesScreen> {
                           ),
                           DataCell(
                             Text(
-                              entry['className']!,
+                              entry.className,
                               style: TextStyle(
                                 color: textColor,
                                 fontFamily: 'Vazir',
@@ -400,7 +239,7 @@ class _MajorClassesScreenState extends State<MajorClassesScreen> {
                           ),
                           DataCell(
                             Text(
-                              entry['classCode']!,
+                              entry.classCode,
                               style: TextStyle(
                                 color: textColor,
                                 fontFamily: 'Vazir',

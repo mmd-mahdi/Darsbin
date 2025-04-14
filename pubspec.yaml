@@ -25,6 +25,7 @@ flutter:
   assets:
     - assets/images/logo.png
     - assets/images/22.png # Put your book + magnifier icon here
+    - assets/university_schedule_data.json
 
   fonts:
     - family: Vazir
