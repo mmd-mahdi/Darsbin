@@ -4,6 +4,10 @@ import '../theme_provider.dart';
 import '../theme_toggle_button.dart';
 import 'daily_schedule_screen.dart';
 import 'canceled_classes_screen.dart';
+import 'makeup_classes_screen.dart';
+import 'exam_schedule_screen.dart';
+import 'professors_schedule_screen.dart';
+import 'majors_schedule_screen.dart'; // Import the new screen
 
 class UniversityDashboardScreen extends StatelessWidget {
   final String universityName;
@@ -31,18 +35,28 @@ class UniversityDashboardScreen extends StatelessWidget {
       body: SafeArea(
         child: Column(
           children: [
-            // Theme toggle button
-            ThemeToggleButton(),
-            SizedBox(height: 8), // Reduced from 16 to 8
-            Center(
-              child: Text(
-                'دانشگاه $universityName',
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: textColor,
-                  fontFamily: 'Vazir',
-                ),
+            // Header with ThemeToggleButton and University Name
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  ThemeToggleButton(),
+                  Expanded(
+                    child: Center(
+                      child: Text(
+                        'دانشگاه $universityName',
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: textColor,
+                          fontFamily: 'Vazir',
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 48), // Placeholder to balance the row
+                ],
               ),
             ),
             SizedBox(height: 20),
@@ -71,8 +85,34 @@ class UniversityDashboardScreen extends StatelessWidget {
                                 builder: (_) => CanceledClassesScreen(universityName: universityName),
                               ),
                             );
-                          } else {
-                            print('Tapped: ${menuOptions[index]}');
+                          } else if (menuOptions[index] == 'کلاس های جبرانی') {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => MakeupClassesScreen(universityName: universityName),
+                              ),
+                            );
+                          } else if (menuOptions[index] == 'برنامه رشته ها') {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => MajorsScheduleScreen(universityName: universityName),
+                              ),
+                            );
+                          } else if (menuOptions[index] == 'برنامه امتحانی') {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => ExamScheduleScreen(universityName: universityName),
+                              ),
+                            );
+                          } else if (menuOptions[index] == 'برنامه اساتید') {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => ProfessorsScheduleScreen(universityName: universityName),
+                              ),
+                            );
                           }
                         },
                         style: ElevatedButton.styleFrom(
