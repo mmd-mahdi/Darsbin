@@ -6,7 +6,7 @@ import '../widgets/SearchBarWidget.dart';
 
 class CanceledClassesScreen extends StatefulWidget {
   final String universityName;
-`
+
   const CanceledClassesScreen({required this.universityName});
 
   @override
