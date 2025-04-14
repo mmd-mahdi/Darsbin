@@ -256,8 +256,7 @@ class _DailyScheduleScreenState extends State<DailyScheduleScreen> {
             children: [
               // Theme toggle button
               ThemeToggleButton(),
-              // University name (same position as dashboard)
-              SizedBox(height: 16),
+              SizedBox(height: 8), // Reduced from 16 to 8
               Center(
                 child: Text(
                   'دانشگاه ${widget.universityName}',
@@ -289,7 +288,7 @@ class _DailyScheduleScreenState extends State<DailyScheduleScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     IconButton(
-                      icon: Icon(Icons.arrow_left, color: textColor),
+                      icon: Icon(Icons.arrow_right, color: textColor),
                       onPressed: _incrementDate,
                     ),
                     GestureDetector(
@@ -311,7 +310,7 @@ class _DailyScheduleScreenState extends State<DailyScheduleScreen> {
                       ),
                     ),
                     IconButton(
-                      icon: Icon(Icons.arrow_right, color: textColor),
+                      icon: Icon(Icons.arrow_left, color: textColor),
                       onPressed: _decrementDate,
                     ),
                   ],
@@ -444,7 +443,7 @@ class _DailyScheduleScreenState extends State<DailyScheduleScreen> {
   }
 }
 
-// Custom Jalali Date Picker Dialog
+// Custom Jalali Date Picker Dialog (unchanged)
 class JalaliDatePickerDialog extends StatefulWidget {
   final shamsi.Jalali initialDate;
   final Function(shamsi.Jalali) onSelected;
@@ -513,7 +512,7 @@ class _JalaliDatePickerDialogState extends State<JalaliDatePickerDialog> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             IconButton(
-              icon: Icon(Icons.arrow_left, color: textColor),
+              icon: Icon(Icons.arrow_right, color: textColor),
               onPressed: () {
                 setState(() {
                   if (_month == 12) {
@@ -535,7 +534,7 @@ class _JalaliDatePickerDialogState extends State<JalaliDatePickerDialog> {
               ),
             ),
             IconButton(
-              icon: Icon(Icons.arrow_right, color: textColor),
+              icon: Icon(Icons.arrow_left, color: textColor),
               onPressed: () {
                 setState(() {
                   if (_month == 1) {

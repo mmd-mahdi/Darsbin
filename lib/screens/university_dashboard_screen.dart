@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../theme_provider.dart';
 import '../theme_toggle_button.dart';
 import 'daily_schedule_screen.dart';
+import 'canceled_classes_screen.dart';
 
 class UniversityDashboardScreen extends StatelessWidget {
   final String universityName;
@@ -32,7 +33,7 @@ class UniversityDashboardScreen extends StatelessWidget {
           children: [
             // Theme toggle button
             ThemeToggleButton(),
-            SizedBox(height: 16),
+            SizedBox(height: 8), // Reduced from 16 to 8
             Center(
               child: Text(
                 'دانشگاه $universityName',
@@ -61,6 +62,13 @@ class UniversityDashboardScreen extends StatelessWidget {
                               context,
                               MaterialPageRoute(
                                 builder: (_) => DailyScheduleScreen(universityName: universityName),
+                              ),
+                            );
+                          } else if (menuOptions[index] == 'کلاس های لغو شده') {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => CanceledClassesScreen(universityName: universityName),
                               ),
                             );
                           } else {
