@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import '../theme_provider.dart';
 import '../theme_toggle_button.dart';
 import '../widgets/SearchBarWidget.dart';
+import '../schedule_service.dart';
+import '../class_schedule.dart';
 
 class FinalExamsScreen extends StatefulWidget {
   final String universityName;
@@ -15,54 +17,36 @@ class FinalExamsScreen extends StatefulWidget {
 
 class _FinalExamsScreenState extends State<FinalExamsScreen> {
   String _searchQuery = '';
+  List<ClassSchedule> _finalExamsData = [];
+  bool _isLoading = true;
 
-  // Sample data for final exams (List<Map<String, String>> format)
-  final List<Map<String, String>> finalExamsData = [
-    {
-      'className': 'ریاضی عمومی',
-      'classCode': 'پ',
-      'date': '۱۴۰۴/۰۴/۱۰',
-      'time': '۱۰:۰۰',
-      'location': 'سالن ۲۰۱',
-    },
-    {
-      'className': 'فیزیک',
-      'classCode': 'پ',
-      'date': '۱۴۰۴/۰۴/۱۲',
-      'time': '۱۴:۰۰',
-      'location': 'سالن ۲۰۲',
-    },
-    {
-      'className': 'برنامه نویسی',
-      'classCode': 'پ',
-      'date': '۱۴۰۴/۰۴/۱۴',
-      'time': '۹:۰۰',
-      'location': 'سالن ۲۰۳',
-    },
-    {
-      'className': 'شیمی عمومی',
-      'classCode': 'پ',
-      'date': '۱۴۰۴/۰۴/۱۶',
-      'time': '۱۱:۰۰',
-      'location': 'سالن ۲۰۴',
-    },
-    {
-      'className': 'مدارهای الکتریکی',
-      'classCode': 'پ',
-      'date': '۱۴۰۴/۰۴/۱۸',
-      'time': '۱۵:۰۰',
-      'location': 'سالن ۲۰۵',
-    },
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _loadFinalExams();
+  }
+
+  Future<void> _loadFinalExams() async {
+    final scheduleService = ScheduleService();
+    final data = await scheduleService.loadScheduleData();
+    setState(() {
+      _finalExamsData = data
+          .where((entry) =>
+      entry.university == widget.universityName &&
+          entry.finalExam != null)
+          .toList();
+      _isLoading = false;
+    });
+  }
 
   // Filtered data based on search query
-  List<Map<String, String>> get filteredExams {
+  List<ClassSchedule> get filteredExams {
     if (_searchQuery.isEmpty) {
-      return finalExamsData;
+      return _finalExamsData;
     }
-    return finalExamsData.where((entry) {
-      return entry['className']!.contains(_searchQuery);
-    }).toList();
+    return _finalExamsData
+        .where((entry) => entry.className.contains(_searchQuery))
+        .toList();
   }
 
   @override
@@ -126,7 +110,9 @@ class _FinalExamsScreenState extends State<FinalExamsScreen> {
               ),
               // Table
               Expanded(
-                child: SingleChildScrollView(
+                child: _isLoading
+                    ? Center(child: CircularProgressIndicator())
+                    : SingleChildScrollView(
                   scrollDirection: Axis.vertical,
                   child: SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
@@ -194,7 +180,7 @@ class _FinalExamsScreenState extends State<FinalExamsScreen> {
                         return DataRow(cells: [
                           DataCell(
                             Text(
-                              entry['className']!,
+                              entry.className,
                               style: TextStyle(
                                 color: textColor,
                                 fontFamily: 'Vazir',
@@ -203,7 +189,7 @@ class _FinalExamsScreenState extends State<FinalExamsScreen> {
                           ),
                           DataCell(
                             Text(
-                              entry['classCode']!,
+                              entry.classCode,
                               style: TextStyle(
                                 color: textColor,
                                 fontFamily: 'Vazir',
@@ -212,7 +198,7 @@ class _FinalExamsScreenState extends State<FinalExamsScreen> {
                           ),
                           DataCell(
                             Text(
-                              entry['date']!,
+                              entry.finalExam!.date,
                               style: TextStyle(
                                 color: textColor,
                                 fontFamily: 'Vazir',
@@ -221,7 +207,7 @@ class _FinalExamsScreenState extends State<FinalExamsScreen> {
                           ),
                           DataCell(
                             Text(
-                              entry['time']!,
+                              entry.finalExam!.time,
                               style: TextStyle(
                                 color: textColor,
                                 fontFamily: 'Vazir',
@@ -230,7 +216,7 @@ class _FinalExamsScreenState extends State<FinalExamsScreen> {
                           ),
                           DataCell(
                             Text(
-                              entry['location']!,
+                              entry.finalExam!.location,
                               style: TextStyle(
                                 color: textColor,
                                 fontFamily: 'Vazir',

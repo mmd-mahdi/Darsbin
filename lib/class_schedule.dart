@@ -10,8 +10,8 @@ class ClassSchedule {
   final String classDate;
   final bool isCanceled;
   final String? makeupDate;
-  final String finalExamDate;
-  final String midtermExamDate;
+  final Midterm midtermExam;
+  final Final finalExam;
   final String classCode;
   final String professorCode;
 
@@ -25,10 +25,10 @@ class ClassSchedule {
     required this.classDate,
     required this.isCanceled,
     this.makeupDate,
-    required this.finalExamDate,
-    required this.midtermExamDate,
+    required this.midtermExam,
     required this.classCode,
     required this.professorCode,
+    required this.finalExam,
   });
 
   factory ClassSchedule.fromJson(Map<String, dynamic> json) {
@@ -42,8 +42,8 @@ class ClassSchedule {
       classDate: json['class_date'],
       isCanceled: json['is_canceled'],
       makeupDate: json['makeup_date'],
-      finalExamDate: json['final_exam_date'],
-      midtermExamDate: json['midterm_exam_date'],
+      finalExam: Final.fromJson(json['finalExam']),
+      midtermExam: Midterm.fromJson(json['finalExam']),
       classCode: json['class_code'],
       professorCode: json['professor_code'],
     );
@@ -60,6 +60,36 @@ class ClassTime {
     return ClassTime(
       start: json['start'],
       end: json['end'],
+    );
+  }
+}
+class Final {
+  final String date;
+  final String time;
+  final String location;
+
+  Final({required this.date, required this.time,required this.location});
+
+  factory Final.fromJson(Map<String, dynamic> json) {
+    return Final(
+      date: json['date'],
+      time: json['time'],
+      location: json['location'],
+    );
+  }
+}
+class Midterm {
+  final String date;
+  final String time;
+  final String location;
+
+  Midterm({required this.date, required this.time,required this.location});
+
+  factory Midterm.fromJson(Map<String, dynamic> json) {
+    return Midterm(
+      date: json['date'],
+      time: json['time'],
+      location: json['location'],
     );
   }
 }
