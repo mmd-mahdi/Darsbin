@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import '../theme_provider.dart';
 import '../theme_toggle_button.dart';
 import '../widgets/SearchBarWidget.dart';
+import '../schedule_service.dart';
+import '../class_schedule.dart';
 
 class MidtermExamsScreen extends StatefulWidget {
   final String universityName;
@@ -15,54 +17,36 @@ class MidtermExamsScreen extends StatefulWidget {
 
 class _MidtermExamsScreenState extends State<MidtermExamsScreen> {
   String _searchQuery = '';
+  List<ClassSchedule> _midtermExamsData = [];
+  bool _isLoading = true;
 
-  // Sample data for midterm exams (List<Map<String, String>> format)
-  final List<Map<String, String>> midtermExamsData = [
-    {
-      'className': 'ریاضی عمومی',
-      'classCode': 'م',
-      'date': '۱۴۰۴/۰۳/۱۰',
-      'time': '۱۰:۰۰',
-      'location': 'کلاس ۱۰۱',
-    },
-    {
-      'className': 'فیزیک',
-      'classCode': 'م',
-      'date': '۱۴۰۴/۰۳/۱۲',
-      'time': '۱۴:۰۰',
-      'location': 'کلاس ۱۰۲',
-    },
-    {
-      'className': 'برنامه نویسی',
-      'classCode': 'م',
-      'date': '۱۴۰۴/۰۳/۱۴',
-      'time': '۹:۰۰',
-      'location': 'کلاس ۱۰۳',
-    },
-    {
-      'className': 'شیمی عمومی',
-      'classCode': 'م',
-      'date': '۱۴۰۴/۰۳/۱۶',
-      'time': '۱۱:۰۰',
-      'location': 'کلاس ۱۰۴',
-    },
-    {
-      'className': 'مدارهای الکتریکی',
-      'classCode': 'م',
-      'date': '۱۴۰۴/۰۳/۱۸',
-      'time': '۱۵:۰۰',
-      'location': 'کلاس ۱۰۵',
-    },
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _loadMidtermExams();
+  }
+
+  Future<void> _loadMidtermExams() async {
+    final scheduleService = ScheduleService();
+    final data = await scheduleService.loadScheduleData();
+    setState(() {
+      _midtermExamsData = data
+          .where((entry) =>
+      entry.university == widget.universityName &&
+          entry.midtermExam != null)
+          .toList();
+      _isLoading = false;
+    });
+  }
 
   // Filtered data based on search query
-  List<Map<String, String>> get filteredExams {
+  List<ClassSchedule> get filteredExams {
     if (_searchQuery.isEmpty) {
-      return midtermExamsData;
+      return _midtermExamsData;
     }
-    return midtermExamsData.where((entry) {
-      return entry['className']!.contains(_searchQuery);
-    }).toList();
+    return _midtermExamsData
+        .where((entry) => entry.className.contains(_searchQuery))
+        .toList();
   }
 
   @override
@@ -126,7 +110,9 @@ class _MidtermExamsScreenState extends State<MidtermExamsScreen> {
               ),
               // Table
               Expanded(
-                child: SingleChildScrollView(
+                child: _isLoading
+                    ? Center(child: CircularProgressIndicator())
+                    : SingleChildScrollView(
                   scrollDirection: Axis.vertical,
                   child: SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
@@ -194,7 +180,7 @@ class _MidtermExamsScreenState extends State<MidtermExamsScreen> {
                         return DataRow(cells: [
                           DataCell(
                             Text(
-                              entry['className']!,
+                              entry.className,
                               style: TextStyle(
                                 color: textColor,
                                 fontFamily: 'Vazir',
@@ -203,7 +189,7 @@ class _MidtermExamsScreenState extends State<MidtermExamsScreen> {
                           ),
                           DataCell(
                             Text(
-                              entry['classCode']!,
+                              entry.classCode,
                               style: TextStyle(
                                 color: textColor,
                                 fontFamily: 'Vazir',
@@ -212,7 +198,7 @@ class _MidtermExamsScreenState extends State<MidtermExamsScreen> {
                           ),
                           DataCell(
                             Text(
-                              entry['date']!,
+                              entry.midtermExam!.date,
                               style: TextStyle(
                                 color: textColor,
                                 fontFamily: 'Vazir',
@@ -221,7 +207,7 @@ class _MidtermExamsScreenState extends State<MidtermExamsScreen> {
                           ),
                           DataCell(
                             Text(
-                              entry['time']!,
+                              entry.midtermExam!.time,
                               style: TextStyle(
                                 color: textColor,
                                 fontFamily: 'Vazir',
@@ -230,7 +216,7 @@ class _MidtermExamsScreenState extends State<MidtermExamsScreen> {
                           ),
                           DataCell(
                             Text(
-                              entry['location']!,
+                              entry.midtermExam!.location,
                               style: TextStyle(
                                 color: textColor,
                                 fontFamily: 'Vazir',

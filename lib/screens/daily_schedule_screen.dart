@@ -150,7 +150,7 @@ class _DailyScheduleScreenState extends State<DailyScheduleScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     IconButton(
-                      icon: Icon(Icons.arrow_right, color: textColor),
+                      icon: Icon(Icons.arrow_left, color: textColor),
                       onPressed: _incrementDate,
                     ),
                     GestureDetector(
@@ -172,7 +172,7 @@ class _DailyScheduleScreenState extends State<DailyScheduleScreen> {
                       ),
                     ),
                     IconButton(
-                      icon: Icon(Icons.arrow_left, color: textColor),
+                      icon: Icon(Icons.arrow_right, color: textColor),
                       onPressed: _decrementDate,
                     ),
                   ],
@@ -380,7 +380,7 @@ class _JalaliDatePickerDialogState extends State<JalaliDatePickerDialog> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             IconButton(
-              icon: Icon(Icons.arrow_right, color: textColor),
+              icon: Icon(Icons.arrow_left, color: textColor),
               onPressed: () {
                 setState(() {
                   if (_month == 12) {
@@ -402,7 +402,7 @@ class _JalaliDatePickerDialogState extends State<JalaliDatePickerDialog> {
               ),
             ),
             IconButton(
-              icon: Icon(Icons.arrow_left, color: textColor),
+              icon: Icon(Icons.arrow_right, color: textColor),
               onPressed: () {
                 setState(() {
                   if (_month == 1) {

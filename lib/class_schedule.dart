@@ -43,7 +43,7 @@ class ClassSchedule {
       isCanceled: json['is_canceled'],
       makeupDate: json['makeup_date'],
       finalExam: Final.fromJson(json['finalExam']),
-      midtermExam: Midterm.fromJson(json['finalExam']),
+      midtermExam: Midterm.fromJson(json['midtermExam']),
       classCode: json['class_code'],
       professorCode: json['professor_code'],
     );
