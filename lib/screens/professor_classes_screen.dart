@@ -159,6 +159,16 @@ class _ProfessorClassesScreenState extends State<ProfessorClassesScreen> {
                         ),
                         DataColumn(
                           label: Text(
+                            'نام درس',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontFamily: 'Vazir',
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        DataColumn(
+                          label: Text(
                             'ساعت شروع',
                             style: TextStyle(
                               color: Colors.white,
@@ -170,16 +180,6 @@ class _ProfessorClassesScreenState extends State<ProfessorClassesScreen> {
                         DataColumn(
                           label: Text(
                             'ساعت پایان',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontFamily: 'Vazir',
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                        DataColumn(
-                          label: Text(
-                            'نام درس',
                             style: TextStyle(
                               color: Colors.white,
                               fontFamily: 'Vazir',
@@ -212,6 +212,15 @@ class _ProfessorClassesScreenState extends State<ProfessorClassesScreen> {
                           ),
                           DataCell(
                             Text(
+                              entry.className,
+                              style: TextStyle(
+                                color: textColor,
+                                fontFamily: 'Vazir',
+                              ),
+                            ),
+                          ),
+                          DataCell(
+                            Text(
                               entry.classTime.start,
                               style: TextStyle(
                                 color: textColor,
@@ -222,15 +231,6 @@ class _ProfessorClassesScreenState extends State<ProfessorClassesScreen> {
                           DataCell(
                             Text(
                               entry.classTime.end,
-                              style: TextStyle(
-                                color: textColor,
-                                fontFamily: 'Vazir',
-                              ),
-                            ),
-                          ),
-                          DataCell(
-                            Text(
-                              entry.className,
                               style: TextStyle(
                                 color: textColor,
                                 fontFamily: 'Vazir',

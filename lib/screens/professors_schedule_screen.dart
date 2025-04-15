@@ -5,6 +5,7 @@ import '../theme_toggle_button.dart';
 import 'professor_classes_screen.dart';
 import '../schedule_service.dart';
 import '../class_schedule.dart';
+import '../widgets/SearchBarWidget.dart';
 
 class ProfessorsScheduleScreen extends StatefulWidget {
   final String universityName;
@@ -16,6 +17,7 @@ class ProfessorsScheduleScreen extends StatefulWidget {
 }
 
 class _ProfessorsScheduleScreenState extends State<ProfessorsScheduleScreen> {
+  String _searchQuery = '';
   List<String> _professorNames = [];
   bool _isLoading = true;
 
@@ -38,6 +40,15 @@ class _ProfessorsScheduleScreenState extends State<ProfessorsScheduleScreen> {
     });
   }
 
+  // Filtered list of Professors based on search query
+  List<String> get filteredProfessors {
+    if (_searchQuery.isEmpty) {
+      return _professorNames;
+    }
+    return _professorNames.where((professor) {
+      return professor.contains(_searchQuery);
+    }).toList();
+  }
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
@@ -89,13 +100,21 @@ class _ProfessorsScheduleScreenState extends State<ProfessorsScheduleScreen> {
                   ),
                 ),
               ),
+              // Search bar for professors
+              SearchBarWidget(
+                onChanged: (value) {
+                  setState(() {
+                    _searchQuery = value;
+                  });
+                },
+              ),
               // List of professor buttons
               Expanded(
                 child: _isLoading
                     ? Center(child: CircularProgressIndicator())
                     : ListView.builder(
                   padding: EdgeInsets.symmetric(vertical: 8),
-                  itemCount: _professorNames.length,
+                  itemCount: filteredProfessors.length,
                   itemBuilder: (context, index) {
                     return Center(
                       child: Container(
@@ -109,7 +128,7 @@ class _ProfessorsScheduleScreenState extends State<ProfessorsScheduleScreen> {
                               MaterialPageRoute(
                                 builder: (_) => ProfessorClassesScreen(
                                   universityName: widget.universityName,
-                                  professorName: _professorNames[index],
+                                  professorName: filteredProfessors[index],
                                 ),
                               ),
                             );
@@ -122,7 +141,7 @@ class _ProfessorsScheduleScreenState extends State<ProfessorsScheduleScreen> {
                             ),
                           ),
                           child: Text(
-                            _professorNames[index],
+                            filteredProfessors[index],
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,

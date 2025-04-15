@@ -155,6 +155,26 @@ class _MakeupClassesScreenState extends State<MakeupClassesScreen> {
                         ),
                         DataColumn(
                           label: Text(
+                            'نام درس',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontFamily: 'Vazir',
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        DataColumn(
+                          label: Text(
+                            'نام استاد',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontFamily: 'Vazir',
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        DataColumn(
+                          label: Text(
                             'ساعت شروع',
                             style: TextStyle(
                               color: Colors.white,
@@ -166,16 +186,6 @@ class _MakeupClassesScreenState extends State<MakeupClassesScreen> {
                         DataColumn(
                           label: Text(
                             'ساعت پایان',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontFamily: 'Vazir',
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                        DataColumn(
-                          label: Text(
-                            'نام درس',
                             style: TextStyle(
                               color: Colors.white,
                               fontFamily: 'Vazir',
@@ -208,6 +218,24 @@ class _MakeupClassesScreenState extends State<MakeupClassesScreen> {
                           ),
                           DataCell(
                             Text(
+                              entry.className,
+                              style: TextStyle(
+                                color: textColor,
+                                fontFamily: 'Vazir',
+                              ),
+                            ),
+                          ),
+                          DataCell(
+                            Text(
+                              entry.professorName,
+                              style: TextStyle(
+                                color: textColor,
+                                fontFamily: 'Vazir',
+                              ),
+                            ),
+                          ),
+                          DataCell(
+                            Text(
                               entry.classTime.start,
                               style: TextStyle(
                                 color: textColor,
@@ -218,15 +246,6 @@ class _MakeupClassesScreenState extends State<MakeupClassesScreen> {
                           DataCell(
                             Text(
                               entry.classTime.end,
-                              style: TextStyle(
-                                color: textColor,
-                                fontFamily: 'Vazir',
-                              ),
-                            ),
-                          ),
-                          DataCell(
-                            Text(
-                              entry.className,
                               style: TextStyle(
                                 color: textColor,
                                 fontFamily: 'Vazir',

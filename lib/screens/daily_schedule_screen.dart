@@ -207,6 +207,26 @@ class _DailyScheduleScreenState extends State<DailyScheduleScreen> {
                         ),
                         DataColumn(
                           label: Text(
+                            'نام درس',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontFamily: 'Vazir',
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        DataColumn(
+                          label: Text(
+                            'نام استاد',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontFamily: 'Vazir',
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        DataColumn(
+                          label: Text(
                             'ساعت شروع',
                             style: TextStyle(
                               color: Colors.white,
@@ -225,16 +245,7 @@ class _DailyScheduleScreenState extends State<DailyScheduleScreen> {
                             ),
                           ),
                         ),
-                        DataColumn(
-                          label: Text(
-                            'نام درس',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontFamily: 'Vazir',
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
+
                         DataColumn(
                           label: Text(
                             'کد درس',
@@ -263,6 +274,24 @@ class _DailyScheduleScreenState extends State<DailyScheduleScreen> {
                           ),
                           DataCell(
                             Text(
+                              entry.className,
+                              style: TextStyle(
+                                color: textColor,
+                                fontFamily: 'Vazir',
+                              ),
+                            ),
+                          ),
+                          DataCell(
+                            Text(
+                              entry.professorName,
+                              style: TextStyle(
+                                color: textColor,
+                                fontFamily: 'Vazir',
+                              ),
+                            ),
+                          ),
+                          DataCell(
+                            Text(
                               entry.classTime.start,
                               style: TextStyle(
                                 color: textColor,
@@ -279,15 +308,7 @@ class _DailyScheduleScreenState extends State<DailyScheduleScreen> {
                               ),
                             ),
                           ),
-                          DataCell(
-                            Text(
-                              entry.className,
-                              style: TextStyle(
-                                color: textColor,
-                                fontFamily: 'Vazir',
-                              ),
-                            ),
-                          ),
+
                           DataCell(
                             Text(
                               entry.classCode,
